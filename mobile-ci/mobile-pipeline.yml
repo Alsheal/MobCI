@@ -1,0 +1,34 @@
+name: Mobile CI/CD Pipeline
+
+platforms:
+  android:
+    build_tool: Gradle
+    build_command: ./gradlew assembleDebug
+    artifact: app/build/outputs/apk/debug/app-debug.apk
+
+  ios:
+    build_tool: Xcode
+    build_command: xcodebuild
+    artifact: build/ios/Runner.ipa
+
+stages:
+  - name: Checkout
+    description: Получение исходного кода мобильного приложения
+
+  - name: Dependencies
+    description: Установка необходимых библиотек и зависимостей
+
+  - name: Static Analysis
+    description: Проверка исходного кода и выявление потенциальных ошибок
+
+  - name: Tests
+    description: Запуск модульных и интеграционных тестов
+
+  - name: Build
+    description: Формирование установочного пакета мобильного приложения
+
+  - name: Publish
+    description: Публикация собранного артефакта
+
+  - name: Deploy
+    description: Подготовка приложения к распространению

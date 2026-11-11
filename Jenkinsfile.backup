@@ -1,0 +1,105 @@
+
+pipeline {
+    agent any
+
+    options {
+        timestamps()
+        disableConcurrentBuilds()
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                echo 'Получение исходного кода MobCI'
+                checkout scm
+            }
+        }
+
+        stage('Install dependencies') {
+            steps {
+                dir('backend') {
+                    script {
+                        if (isUnix()) {
+                            sh 'npm install'
+                        } else {
+                            bat 'npm install'
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Backend tests') {
+            steps {
+                dir('backend') {
+                    script {
+                        if (isUnix()) {
+                            sh 'npm test'
+                        } else {
+                            bat 'npm test'
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Build Docker images') {
+            steps {
+                script {
+                    if (isUnix()) {
+                        sh 'docker compose build'
+                    } else {
+                        bat 'docker compose build'
+                    }
+                }
+            }
+        }
+
+        stage('Deploy application') {
+            steps {
+                script {
+                    if (isUnix()) {
+                        sh 'docker compose up -d'
+                    } else {
+                        bat 'docker compose up -d'
+                    }
+                }
+            }
+        }
+
+        stage('Smoke tests') {
+            steps {
+                script {
+                    if (isUnix()) {
+                        sh '''
+                            curl --fail --retry 5 --retry-delay 3 \
+                            http://localhost/health
+
+                            curl --fail --retry 5 --retry-delay 3 \
+                            http://localhost/api/builds
+                        '''
+                    } else {
+                        bat '''
+                            powershell -NoProfile -Command "$ErrorActionPreference = 'Stop'; Invoke-WebRequest -UseBasicParsing http://localhost/health; Invoke-WebRequest -UseBasicParsing http://localhost/api/builds"
+                        '''
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'MobCI: CI/CD Pipeline завершён успешно!'
+        }
+
+        failure {
+            echo 'MobCI: Pipeline завершился с ошибкой.'
+        }
+
+        always {
+            echo 'Выполнение Pipeline завершено.'
+        }
+    }
+}

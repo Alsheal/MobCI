@@ -1,0 +1,19 @@
+{
+  "name": "mobci-backend",
+  "version": "1.0.0",
+  "description": "Backend API for mobile CI/CD administration",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "jest"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "mysql2": "^3.9.7",
+    "redis": "^4.6.14"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^7.0.0"
+  }
+}

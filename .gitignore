@@ -1,0 +1,43 @@
+# Node.js
+node_modules/
+npm-debug.log*
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets/
+
+# Tests and coverage
+coverage/
+.nyc_output/
+
+# Android Studio and Gradle
+.gradle/
+.idea/
+local.properties
+**/build/
+*.apk
+*.aab
+*.jks
+*.keystore
+
+# IDE
+.vscode/
+
+# Jenkins and CI temporary files
+*.log
+*.tmp
+
+# Build output
+dist/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Docker local overrides
+docker-compose.override.yml

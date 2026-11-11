@@ -1,0 +1,83 @@
+
+version: "3.8"
+
+services:
+  db:
+    image: mobci-db:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: mobci
+      MYSQL_USER: mobci_user
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - mobci-network
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+  cache:
+    image: mobci-cache:latest
+    networks:
+      - mobci-network
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+  backend:
+    image: mobci-backend:latest
+    environment:
+      PORT: 3000
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_NAME: mobci
+      DB_USER: mobci_user
+      DB_PASSWORD: ${DB_PASSWORD}
+      REDIS_URL: redis://cache:6379
+    networks:
+      - mobci-network
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+  frontend:
+    image: mobci-frontend:latest
+    networks:
+      - mobci-network
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+  proxy:
+    image: mobci-proxy:latest
+    ports:
+      - "80:80"
+    networks:
+      - mobci-network
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+  adminer:
+    image: mobci-adminer:latest
+    ports:
+      - "8081:8080"
+    networks:
+      - mobci-network
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+volumes:
+  mysql_data:
+
+networks:
+  mobci-network:
+    driver: overlay

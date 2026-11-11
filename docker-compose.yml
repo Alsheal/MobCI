@@ -1,0 +1,113 @@
+
+services:
+  db:
+    build:
+      context: ./db
+    image: mobci-db:latest
+    container_name: mobci-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: mobci
+      MYSQL_USER: mobci_user
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - mobci-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  cache:
+    build:
+      context: ./cache
+    image: mobci-cache:latest
+    container_name: mobci-cache
+    restart: unless-stopped
+    networks:
+      - mobci-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+    image: mobci-backend:latest
+    container_name: mobci-backend
+    restart: unless-stopped
+    environment:
+      PORT: 3000
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_NAME: mobci
+      DB_USER: mobci_user
+      DB_PASSWORD: ${DB_PASSWORD}
+      REDIS_URL: redis://cache:6379
+    depends_on:
+      db:
+        condition: service_healthy
+      cache:
+        condition: service_healthy
+    networks:
+      - mobci-network
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://localhost:3000/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  frontend:
+    build:
+      context: ./frontend
+    image: mobci-frontend:latest
+    container_name: mobci-frontend
+    restart: unless-stopped
+    networks:
+      - mobci-network
+
+  proxy:
+    build:
+      context: ./proxy
+    image: mobci-proxy:latest
+    container_name: mobci-proxy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+      frontend:
+        condition: service_started
+    networks:
+      - mobci-network
+
+  adminer:
+    build:
+      context: ./adminer
+    image: mobci-adminer:latest
+    container_name: mobci-adminer
+    restart: unless-stopped
+    ports:
+      - "8081:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - mobci-network
+
+volumes:
+  mysql_data:
+
+networks:
+  mobci-network:
+    driver: bridge
