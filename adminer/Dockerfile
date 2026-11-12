@@ -1,4 +1,2 @@
-
 FROM adminer:4.8.1
-
 EXPOSE 8080

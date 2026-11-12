@@ -1,7 +1,6 @@
 
 const app = require('./app');
 const mysql = require('mysql2/promise');
-const redis = require('redis');
 
 const PORT = process.env.PORT || 3000;
 
@@ -21,20 +20,7 @@ async function startServer() {
 
         console.log('MySQL connection established');
 
-        const redisClient = redis.createClient({
-            url: process.env.REDIS_URL || 'redis://localhost:6379'
-        });
-
-        redisClient.on('error', (error) => {
-            console.error('Redis error:', error.message);
-        });
-
-        await redisClient.connect();
-
-        console.log('Redis connection established');
-
         app.locals.db = db;
-        app.locals.redis = redisClient;
 
         app.listen(PORT, '0.0.0.0', () => {
             console.log(`MobCI backend started on port ${PORT}`);

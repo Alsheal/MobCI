@@ -10,14 +10,15 @@ MobCI — демонстрационная система автоматизац
 
 Основная инфраструктура состоит из шести отдельных Docker Compose сервисов:
 
+Основная инфраструктура состоит из пяти Docker Compose сервисов:
+
 1. **adminer** — веб-интерфейс управления базой данных.
 2. **backend** — серверная часть на Node.js и Express.
-3. **cache** — кэширование данных с помощью Redis.
-4. **db** — хранение данных в MySQL.
-5. **frontend** — пользовательский веб-интерфейс.
-6. **proxy** — маршрутизация запросов через Nginx.
+3. **db** — хранение данных в MySQL.
+4. **frontend** — пользовательский веб-интерфейс.
+5. **proxy** — маршрутизация запросов через Nginx.
 
-Jenkins работает отдельно от Docker Compose и выполняет CI/CD Pipeline. Для сборки Android используется установленный в Jenkins Android SDK и Gradle.
+Jenkins работает отдельно от Docker Compose и выполняет CI/CD Pipeline. В процессе проверяется backend, выполняются Android unit-тесты и собирается APK-файл. Готовый APK сохраняется как артефакт сборки Jenkins.
 
 ## 3. Используемые технологии
 
@@ -26,7 +27,6 @@ Jenkins работает отдельно от Docker Compose и выполня�
 - Node.js 20
 - Express
 - MySQL
-- Redis
 - Nginx
 - Adminer
 - Kotlin
@@ -44,7 +44,6 @@ MobCI_container_edition/
 │   ├── test/
 │   ├── Dockerfile
 │   └── Dockerfile.ci
-├── cache/
 ├── db/
 ├── frontend/
 ├── proxy/
@@ -115,7 +114,6 @@ Backend предоставляет API для получения и регист
 
 Используются:
 - MySQL для хранения истории сборок;
-- Redis для кэширования;
 - Express для обработки HTTP-запросов.
 
 Для локального запуска тестов:
@@ -188,7 +186,7 @@ mobile/android-demo/app/build/outputs/apk/debug/app-debug.apk
 - запуск Docker Compose;
 - проверка состояния контейнеров;
 - проверка Backend API;
-- проверка соединения с MySQL и Redis;
+- проверка соединения с MySQL;
 - запуск автоматизированных backend-тестов;
 - запуск Android unit-тестов;
 - сборка Android APK;

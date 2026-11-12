@@ -7,22 +7,9 @@ const mockDb = {
     execute: jest.fn()
 };
 
-const mockRedis = {
-    isReady: true,
-    get: jest.fn(),
-    set: jest.fn(),
-    del: jest.fn()
-};
-
 beforeEach(() => {
     jest.clearAllMocks();
-
     app.locals.db = mockDb;
-    app.locals.redis = mockRedis;
-
-    mockRedis.get.mockResolvedValue(null);
-    mockRedis.set.mockResolvedValue('OK');
-    mockRedis.del.mockResolvedValue(1);
 });
 
 describe('MobCI API tests', () => {
@@ -55,23 +42,7 @@ describe('MobCI API tests', () => {
         expect(response.statusCode).toBe(200);
         expect(response.body.source).toBe('database');
         expect(response.body.builds).toHaveLength(1);
-    });
-
-    test('GET /api/builds uses Redis cache', async () => {
-        mockRedis.get.mockResolvedValue(JSON.stringify([
-            {
-                id: 1,
-                platform: 'Android',
-                version: '1.0.0',
-                status: 'passed'
-            }
-        ]));
-
-        const response = await request(app).get('/api/builds');
-
-        expect(response.statusCode).toBe(200);
-        expect(response.body.source).toBe('cache');
-        expect(mockDb.query).not.toHaveBeenCalled();
+        expect(mockDb.query).toHaveBeenCalledTimes(1);
     });
 
     test('POST /api/builds rejects invalid platform', async () => {
@@ -96,6 +67,6 @@ describe('MobCI API tests', () => {
         expect(response.statusCode).toBe(201);
         expect(response.body.build.id).toBe(10);
         expect(response.body.build.platform).toBe('Android');
-        expect(mockRedis.del).toHaveBeenCalledWith('mobci:builds');
+        expect(mockDb.execute).toHaveBeenCalledTimes(1);
     });
 });

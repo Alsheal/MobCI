@@ -1,3 +1,4 @@
+
 const express = require('express');
 
 const app = express();
@@ -21,22 +22,8 @@ app.get('/api/health', (req, res) => {
 // Получение истории запусков из MySQL
 app.get('/api/builds', async (req, res) => {
     try {
-        const redis = req.app.locals.redis;
         const db = req.app.locals.db;
 
-        // Сначала проверяем наличие данных в Redis
-        if (redis && redis.isReady) {
-            const cachedBuilds = await redis.get('mobci:builds');
-
-            if (cachedBuilds) {
-                return res.json({
-                    source: 'cache',
-                    builds: JSON.parse(cachedBuilds)
-                });
-            }
-        }
-
-        // Если кэша нет, обращаемся к MySQL
         const [rows] = await db.query(`
             SELECT
                 id,
@@ -48,15 +35,6 @@ app.get('/api/builds', async (req, res) => {
             FROM builds
             ORDER BY created_at DESC
         `);
-
-        // Сохраняем результат в Redis
-        if (redis && redis.isReady) {
-            await redis.set(
-                'mobci:builds',
-                JSON.stringify(rows),
-                { EX: 30 }
-            );
-        }
 
         res.json({
             source: 'database',
@@ -76,17 +54,16 @@ app.get('/api/builds', async (req, res) => {
 app.post('/api/builds', async (req, res) => {
     try {
         const { platform } = req.body;
-	const version = req.body.version || req.body.app_version;
-	const commit = req.body.commit || req.body.commit_sha;
+        const version = req.body.version || req.body.app_version;
+        const commit = req.body.commit || req.body.commit_sha;
 
-        if (!['Android', 'iOS'].includes(platform)) {
+        if (platform !== 'Android') {
             return res.status(400).json({
-                error: 'Platform must be Android or iOS'
+                error: 'Platform must be Android'
             });
         }
 
         const db = req.app.locals.db;
-        const redis = req.app.locals.redis;
 
         const [result] = await db.execute(
             `INSERT INTO builds
@@ -99,11 +76,6 @@ app.post('/api/builds', async (req, res) => {
                 commit || 'unknown'
             ]
         );
-
-        // После добавления записи удаляем устаревший кэш
-        if (redis && redis.isReady) {
-            await redis.del('mobci:builds');
-        }
 
         res.status(201).json({
             message: 'Build record created',

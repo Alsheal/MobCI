@@ -4,20 +4,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MobCI — Mobile CI/CD Dashboard</title>
-
+    <title>MobCI — Android CI/CD</title>
     <style>
-        * {
-            box-sizing: border-box;
-        }
-
+        * { box-sizing: border-box; }
         body {
             margin: 0;
             font-family: Arial, sans-serif;
             background: #f3f5f9;
             color: #202938;
         }
-
         header {
             background: #17243a;
             color: white;
@@ -26,72 +21,9 @@
             justify-content: space-between;
             align-items: center;
         }
-
-        header h1 {
-            margin: 0;
-            font-size: 25px;
-        }
-
-        header span {
-            color: #9eacc3;
-            font-size: 13px;
-        }
-
-        nav {
-            background: white;
-            padding: 15px 35px;
-            border-bottom: 1px solid #e2e6ed;
-        }
-
-        nav a {
-            color: #34445e;
-            text-decoration: none;
-            margin-right: 25px;
-            font-size: 14px;
-        }
-
-        main {
-            max-width: 1250px;
-            margin: 30px auto;
-            padding: 0 25px;
-        }
-
-        .welcome {
-            margin-bottom: 25px;
-        }
-
-        .welcome h2 {
-            margin-bottom: 8px;
-        }
-
-        .welcome p {
-            color: #6b7789;
-        }
-
-        .cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-            gap: 18px;
-            margin-bottom: 30px;
-        }
-
-        .card {
-            background: white;
-            border-radius: 10px;
-            padding: 22px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-        }
-
-        .card p {
-            color: #758197;
-            font-size: 14px;
-        }
-
-        .card h3 {
-            font-size: 27px;
-            margin: 10px 0 0;
-        }
-
+        header h1 { margin: 0; font-size: 25px; }
+        header span { color: #9eacc3; font-size: 13px; }
+        main { max-width: 1100px; margin: 30px auto; padding: 0 25px; }
         .section {
             background: white;
             border-radius: 10px;
@@ -99,107 +31,49 @@
             margin-bottom: 25px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.04);
         }
-
-        .section h3 {
-            margin-top: 0;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th, td {
-            padding: 13px;
-            border-bottom: 1px solid #edf0f4;
-            text-align: left;
-            font-size: 14px;
-        }
-
-        th {
-            color: #758197;
-            font-weight: normal;
-        }
-
-        .status {
-            display: inline-block;
-            padding: 5px 10px;
-            border-radius: 15px;
-            font-size: 12px;
-        }
-
-        .passed {
-            background: #dcfce7;
-            color: #15803d;
-        }
-
-        .failed {
-            background: #fee2e2;
-            color: #b91c1c;
-        }
-
-        .running {
-            background: #dbeafe;
-            color: #1d4ed8;
-        }
-
+        h2, h3 { margin-top: 0; }
+        p, li { line-height: 1.6; }
         .pipeline {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 12px;
         }
-
         .step {
-            padding: 16px;
+            padding: 18px;
             background: #f3f6fb;
             border-radius: 8px;
             text-align: center;
             font-size: 14px;
         }
-
-        .notice {
-            padding: 15px;
-            background: #fff7e6;
-            border-left: 4px solid #e9a23b;
-            border-radius: 5px;
-            color: #76551c;
-            line-height: 1.5;
-            font-size: 14px;
+        .status {
+            display: inline-block;
+            padding: 8px 12px;
+            border-radius: 15px;
+            background: #dcfce7;
+            color: #15803d;
+            font-weight: bold;
         }
-
+        .link {
+            display: inline-block;
+            margin: 8px 8px 0 0;
+            padding: 11px 16px;
+            background: #1d4ed8;
+            color: white;
+            border-radius: 6px;
+            text-decoration: none;
+        }
         footer {
             text-align: center;
             padding: 25px;
             color: #8a94a5;
             font-size: 13px;
         }
-
         @media (max-width: 600px) {
-            header {
-                padding: 20px;
-            }
-
-            nav {
-                padding: 15px 20px;
-            }
-
-            nav a {
-                display: inline-block;
-                margin-bottom: 10px;
-            }
-
-            main {
-                padding: 0 15px;
-            }
-
-            table {
-                display: block;
-                overflow-x: auto;
-            }
+            header { padding: 20px; }
+            main { padding: 0 15px; }
         }
     </style>
 </head>
-
 <body>
 
 <header>
@@ -207,108 +81,60 @@
         <h1>MobCI</h1>
         <span>Mobile Continuous Integration & Delivery</span>
     </div>
-    <span>CI/CD Dashboard</span>
+    <span>Android CI/CD Dashboard</span>
 </header>
 
-<nav>
-    <a href="#overview">Обзор</a>
-    <a href="#pipeline">Этапы Pipeline</a>
-    <a href="#history">История запусков</a>
-    <a href="#infrastructure">Инфраструктура</a>
-</nav>
-
 <main>
-
-    <section class="welcome" id="overview">
+    <section class="section">
         <h2>Панель управления MobCI</h2>
         <p>
-            Демонстрационная система автоматизации процессов
-            тестирования и развёртывания мобильного программного обеспечения.
+            Учебная система непрерывной интеграции и доставки
+            Android-приложения. Система автоматизирует проверку
+            backend, тестирование Android-приложения и создание APK.
         </p>
+        <p>Состояние backend: <span class="status" id="backendStatus">Проверка...</span></p>
     </section>
 
-    <section class="cards">
-        <div class="card">
-            <p>Всего запусков</p>
-            <h3 id="totalBuilds">—</h3>
-        </div>
-
-        <div class="card">
-            <p>Успешные запуски</p>
-            <h3 id="passedBuilds">—</h3>
-        </div>
-
-        <div class="card">
-            <p>Запуски с ошибками</p>
-            <h3 id="failedBuilds">—</h3>
-        </div>
-
-        <div class="card">
-            <p>Состояние backend</p>
-            <h3 id="backendStatus">Проверка...</h3>
-        </div>
-    </section>
-
-    <section class="section" id="pipeline">
+    <section class="section">
         <h3>Этапы CI/CD Pipeline</h3>
-
         <div class="pipeline">
-            <div class="step">1. Получение исходного кода</div>
-            <div class="step">2. Установка зависимостей</div>
-            <div class="step">3. Статический анализ</div>
-            <div class="step">4. Автоматизированные тесты</div>
-            <div class="step">5. Сборка артефакта</div>
-            <div class="step">6. Публикация и развёртывание</div>
+            <div class="step">1. Проверка окружения и исходного кода</div>
+            <div class="step">2. Тестирование backend</div>
+            <div class="step">3. Сборка Docker-образов</div>
+            <div class="step">4. Android-тесты и сборка APK</div>
+            <div class="step">5. Проверка доступности сервисов</div>
         </div>
     </section>
 
-    <section class="section" id="history">
-        <h3>История запусков</h3>
-
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Платформа</th>
-                    <th>Версия</th>
-                    <th>Статус</th>
-                    <th>Коммит</th>
-                    <th>Дата</th>
-                </tr>
-            </thead>
-
-            <tbody id="buildTable">
-                <tr>
-                    <td colspan="6">Загрузка данных...</td>
-                </tr>
-            </tbody>
-        </table>
+    <section class="section">
+        <h3>Результаты сборки</h3>
+        <p>
+            Jenkins выполняет автоматизированный Pipeline.
+            После успешного прохождения тестов Android-приложение
+            собирается в APK-файл и сохраняется как артефакт сборки.
+        </p>
+        <p>
+            Для просмотра результатов, журналов и скачивания APK
+            открой Jenkins.
+        </p>
+        <a class="link" href="http://localhost:8082" target="_blank">
+            Открыть Jenkins
+        </a>
     </section>
 
-    <section class="section" id="infrastructure">
+    <section class="section">
         <h3>Инфраструктура проекта</h3>
-
-        <p>Проект использует контейнеризированную архитектуру Docker.</p>
-
+        <p>Система развёрнута с использованием Docker.</p>
         <ul>
-            <li>Proxy — Nginx, обработка входящих HTTP-запросов.</li>
-            <li>Frontend — веб-интерфейс системы.</li>
+            <li>Nginx — обратный прокси-сервер.</li>
+            <li>Frontend — веб-интерфейс MobCI.</li>
             <li>Backend — Node.js и Express.</li>
-            <li>DB — MySQL, хранение информации о запусках.</li>
-            <li>Cache — Redis, кэширование данных.</li>
+            <li>MySQL — база данных.</li>
             <li>Adminer — управление базой данных.</li>
+            <li>Jenkins — автоматизация CI/CD Pipeline.</li>
+            <li>Gradle и Android SDK — тестирование и сборка APK.</li>
         </ul>
-
-        <div class="notice">
-            Демонстрационный стенд показывает инфраструктуру CI/CD,
-            автоматизированное тестирование backend и учёт запусков
-            мобильных платформ. Реальная сборка APK, AAB или IPA
-            требует исходного кода мобильного приложения и
-            соответствующей среды сборки. В данном проекте она
-            не выполняется.
-        </div>
     </section>
-
 </main>
 
 <footer>
@@ -316,91 +142,22 @@
 </footer>
 
 <script>
-    async function loadHealth() {
-        const status = document.getElementById('backendStatus');
-
-        try {
-            const response = await fetch('/api/health');
-
-            if (!response.ok) {
-                throw new Error('Backend unavailable');
-            }
-
-            status.textContent = 'Работает';
-            status.style.color = '#15803d';
-        } catch (error) {
-            status.textContent = 'Недоступен';
-            status.style.color = '#b91c1c';
-        }
+async function loadHealth() {
+    const status = document.getElementById('backendStatus');
+    try {
+        const response = await fetch('/api/health');
+        if (!response.ok) throw new Error('Backend unavailable');
+        status.textContent = 'Работает';
+        status.style.background = '#dcfce7';
+        status.style.color = '#15803d';
+    } catch (error) {
+        status.textContent = 'Недоступен';
+        status.style.background = '#fee2e2';
+        status.style.color = '#b91c1c';
     }
-
-    async function loadBuilds() {
-        const table = document.getElementById('buildTable');
-
-        try {
-            const response = await fetch('/api/builds');
-
-            if (!response.ok) {
-                throw new Error('Failed to load builds');
-            }
-
-            const data = await response.json();
-            const builds = data.builds || [];
-
-            document.getElementById('totalBuilds').textContent =
-                builds.length;
-
-            document.getElementById('passedBuilds').textContent =
-                builds.filter(item => item.status === 'passed').length;
-
-            document.getElementById('failedBuilds').textContent =
-                builds.filter(item => item.status === 'failed').length;
-
-            if (builds.length === 0) {
-                table.innerHTML =
-                    '<tr><td colspan="6">Записей пока нет</td></tr>';
-                return;
-            }
-
-            table.innerHTML = builds.map(build => {
-                const statusClass = {
-                    passed: 'passed',
-                    failed: 'failed',
-                    running: 'running'
-                }[build.status] || 'running';
-
-                const date = new Date(build.createdAt)
-                    .toLocaleString('ru-RU');
-
-                return `
-                    <tr>
-                        <td>${build.id}</td>
-                        <td>${build.platform}</td>
-                        <td>${build.version}</td>
-                        <td>
-                            <span class="status ${statusClass}">
-                                ${build.status}
-                            </span>
-                        </td>
-                        <td>${build.commit}</td>
-                        <td>${date}</td>
-                    </tr>
-                `;
-            }).join('');
-
-        } catch (error) {
-            table.innerHTML =
-                '<tr><td colspan="6">Не удалось загрузить историю запусков</td></tr>';
-        }
-    }
-
-    loadHealth();
-    loadBuilds();
-
-    setInterval(() => {
-        loadHealth();
-        loadBuilds();
-    }, 15000);
+}
+loadHealth();
+setInterval(loadHealth, 15000);
 </script>
 
 </body>
