@@ -1,4 +1,3 @@
-
 pipeline {
     agent any
 
@@ -36,7 +35,11 @@ pipeline {
             steps {
                 sh '''
                     set -e
-                    docker compose build
+                    docker build -t mobci-adminer:latest adminer
+                    docker build -t mobci-backend:latest backend
+                    docker build -t mobci-db:latest db
+                    docker build -t mobci-frontend:latest frontend
+                    docker build -t mobci-proxy:latest proxy
                 '''
             }
         }
