@@ -45,13 +45,37 @@
             text-align: center;
             font-size: 14px;
         }
-        .status {
+        .services {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 14px;
+        }
+        .service-card {
+            padding: 18px;
+            background: #f3f6fb;
+            border-radius: 8px;
+            border: 1px solid #e1e7f0;
+        }
+        .service-name {
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+        .service-status {
             display: inline-block;
-            padding: 8px 12px;
-            border-radius: 15px;
+            padding: 6px 11px;
+            border-radius: 14px;
+            background: #e5e7eb;
+            color: #374151;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .online {
             background: #dcfce7;
             color: #15803d;
-            font-weight: bold;
+        }
+        .offline {
+            background: #fee2e2;
+            color: #b91c1c;
         }
         .link {
             display: inline-block;
@@ -61,6 +85,11 @@
             color: white;
             border-radius: 6px;
             text-decoration: none;
+        }
+        .updated {
+            color: #8a94a5;
+            font-size: 12px;
+            margin-top: 15px;
         }
         footer {
             text-align: center;
@@ -92,7 +121,39 @@
             Android-приложения. Система автоматизирует проверку
             backend, тестирование Android-приложения и создание APK.
         </p>
-        <p>Состояние backend: <span class="status" id="backendStatus">Проверка...</span></p>
+        <p>Общее состояние системы:
+            <span class="service-status" id="overallStatus">Проверка...</span>
+        </p>
+    </section>
+
+    <section class="section">
+        <h3>Мониторинг инфраструктуры</h3>
+        <p>Текущая доступность компонентов системы:</p>
+
+        <div class="services">
+            <div class="service-card">
+                <div class="service-name">Backend</div>
+                <span class="service-status" id="backendStatus">Проверка...</span>
+            </div>
+            <div class="service-card">
+                <div class="service-name">MySQL</div>
+                <span class="service-status" id="mysqlStatus">Проверка...</span>
+            </div>
+            <div class="service-card">
+                <div class="service-name">Frontend</div>
+                <span class="service-status" id="frontendStatus">Проверка...</span>
+            </div>
+            <div class="service-card">
+                <div class="service-name">Adminer</div>
+                <span class="service-status" id="adminerStatus">Проверка...</span>
+            </div>
+            <div class="service-card">
+                <div class="service-name">Nginx</div>
+                <span class="service-status" id="nginxStatus">Проверка...</span>
+            </div>
+        </div>
+
+        <p class="updated" id="lastChecked">Ожидание проверки...</p>
     </section>
 
     <section class="section">
@@ -124,7 +185,7 @@
 
     <section class="section">
         <h3>Инфраструктура проекта</h3>
-        <p>Система развёрнута с использованием Docker.</p>
+        <p>Система развёрнута с использованием Docker Swarm.</p>
         <ul>
             <li>Nginx — обратный прокси-сервер.</li>
             <li>Frontend — веб-интерфейс MobCI.</li>
@@ -142,22 +203,68 @@
 </footer>
 
 <script>
-async function loadHealth() {
-    const status = document.getElementById('backendStatus');
-    try {
-        const response = await fetch('/api/health');
-        if (!response.ok) throw new Error('Backend unavailable');
-        status.textContent = 'Работает';
-        status.style.background = '#dcfce7';
-        status.style.color = '#15803d';
-    } catch (error) {
-        status.textContent = 'Недоступен';
-        status.style.background = '#fee2e2';
-        status.style.color = '#b91c1c';
+const serviceNames = ['backend', 'mysql', 'frontend', 'adminer', 'nginx'];
+
+function updateStatus(element, value) {
+    element.classList.remove('online', 'offline');
+
+    if (value === 'online') {
+        element.textContent = 'Работает';
+        element.classList.add('online');
+    } else {
+        element.textContent = 'Недоступен';
+        element.classList.add('offline');
     }
 }
-loadHealth();
-setInterval(loadHealth, 15000);
+
+async function loadServices() {
+    const overall = document.getElementById('overallStatus');
+    const lastChecked = document.getElementById('lastChecked');
+
+    try {
+        const response = await fetch('/api/services', { cache: 'no-store' });
+        const data = await response.json();
+
+        if (!data.services) {
+            throw new Error('Invalid response');
+        }
+
+        serviceNames.forEach(name => {
+            updateStatus(
+                document.getElementById(name + 'Status'),
+                data.services[name]
+            );
+        });
+
+        overall.classList.remove('online', 'offline');
+
+        if (data.status === 'available') {
+            overall.textContent = 'Все сервисы доступны';
+            overall.classList.add('online');
+        } else {
+            overall.textContent = 'Есть недоступные сервисы';
+            overall.classList.add('offline');
+        }
+
+        lastChecked.textContent =
+            'Последняя проверка: ' +
+            new Date(data.checkedAt).toLocaleString('ru-RU');
+
+    } catch (error) {
+        serviceNames.forEach(name => {
+            updateStatus(document.getElementById(name + 'Status'), 'offline');
+        });
+
+        overall.textContent = 'Система недоступна';
+        overall.classList.remove('online');
+        overall.classList.add('offline');
+
+        lastChecked.textContent = 'Не удалось получить данные мониторинга';
+    }
+}
+
+loadServices();
+setInterval(loadServices, 15000);
 </script>
 
 </body>

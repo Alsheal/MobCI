@@ -1,4 +1,3 @@
-
 const request = require('supertest');
 const app = require('../src/app');
 
@@ -68,5 +67,20 @@ describe('MobCI API tests', () => {
         expect(response.body.build.id).toBe(10);
         expect(response.body.build.platform).toBe('Android');
         expect(mockDb.execute).toHaveBeenCalledTimes(1);
+    });
+
+    test('GET /api/services returns infrastructure status', async () => {
+        const response = await request(app).get('/api/services');
+
+        expect([200, 503]).toContain(response.statusCode);
+        expect(response.body.services).toEqual({
+            backend: 'online',
+            mysql: expect.any(String),
+            frontend: expect.any(String),
+            adminer: expect.any(String),
+            nginx: expect.any(String)
+        });
+
+        expect(response.body.status).toMatch(/available|degraded/);
     });
 });

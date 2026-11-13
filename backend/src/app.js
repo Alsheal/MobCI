@@ -97,6 +97,55 @@ app.post('/api/builds', async (req, res) => {
     }
 });
 
+// Проверка доступности сервисов MobCI
+app.get('/api/services', async (req, res) => {
+    const checkHttp = async (url) => {
+        try {
+            const response = await fetch(url, {
+                signal: AbortSignal.timeout(3000)
+            });
+
+            return response.ok ? 'online' : 'offline';
+        } catch {
+            return 'offline';
+        }
+    };
+
+    const checkDatabase = async () => {
+        try {
+            await req.app.locals.db.query('SELECT 1');
+            return 'online';
+        } catch {
+            return 'offline';
+        }
+    };
+
+    const services = await Promise.all([
+        checkDatabase(),
+        checkHttp('http://frontend/'),
+        checkHttp('http://adminer:8080/'),
+        checkHttp('http://proxy/')
+    ]);
+
+    const result = {
+        backend: 'online',
+        mysql: services[0],
+        frontend: services[1],
+        adminer: services[2],
+        nginx: services[3]
+    };
+
+    const allOnline = Object.values(result).every(
+        status => status === 'online'
+    );
+
+    res.status(allOnline ? 200 : 503).json({
+        status: allOnline ? 'available' : 'degraded',
+        services: result,
+        checkedAt: new Date().toISOString()
+    });
+});
+
 app.use((req, res) => {
     res.status(404).json({
         error: 'Route not found'
